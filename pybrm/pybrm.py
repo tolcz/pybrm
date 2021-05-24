@@ -716,13 +716,6 @@ class FList:
         """Get a value from this flist by field_name"""
         return self._get_field(item)
 
-    def __getattr__(self, name):
-        """Get a field value from this flist by field_name"""
-        try:
-            return self._get_field(name)
-        except KeyError as ex:
-            raise AttributeError
-
     def get(self, name, default=None):
         """
         Get the value of a field off an flist.
@@ -819,15 +812,6 @@ class FList:
     def __setitem__(self, item, value):
         """Sets value onto this flist by field_name"""
         return self._set_field(item, value)
-
-    def __setattr__(self, name, value):
-        """Sets value onto this flist by field_name"""
-        try:
-            field_number = field_by_identifier(name)
-            return self._set_field(name, value)
-        except KeyError as ex:
-            pass
-        super().__setattr__(name, value)
 
     def _set_field(self, name, value):
         field_number = field_by_identifier(name)
@@ -1220,9 +1204,6 @@ class FList:
     def __iter__(self):
         yield from self._flist.init_iter()
 
-    def __dir__(self):
-        return super().__dir__() + list(self.keys())
-
     def items(self):
         """Returns the (key, values) of this flist"""
         for name in self:
@@ -1245,13 +1226,6 @@ class FList:
             return self._drop_array(item)
         else:
             return self._drop_field(item)
-
-    def __delattr__(self, item):
-        """Deletes the field_name from this flist"""
-        if item in self:
-            return self.__delitem__(item)
-        else:
-            return self.super(item)
 
     def _drop_field(self, name, elem_id=0, optional=0):
         """
@@ -1377,6 +1351,35 @@ class FList:
         :return: PyCapsule
         """
         return self._flist.capsule(copy_capsule)
+
+
+class DotFList(FList):
+    __slots__ = ()
+    def __getattr__(self, name):
+        """Get a field value from this flist by field_name"""
+        try:
+            return self._get_field(name)
+        except KeyError as ex:
+            raise AttributeError
+
+    def __setattr__(self, name, value):
+        """Sets value onto this flist by field_name"""
+        try:
+            field_number = field_by_identifier(name)
+            return self._set_field(name, value)
+        except KeyError as ex:
+            pass
+        super().__setattr__(name, value)
+
+    def __delattr__(self, item):
+        """Deletes the field_name from this flist"""
+        if item in self:
+            return self.__delitem__(item)
+        else:
+            return self.super(item)
+
+    def __dir__(self):
+        return super().__dir__() + list(self.keys())
 
 
 class BRMArray:

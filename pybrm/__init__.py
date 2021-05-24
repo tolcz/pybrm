@@ -4,6 +4,7 @@ from .pybrm import (
     BRMHandler,
     Client,
     FList,
+    DotFList,
     PIN_ERR_LEVEL_DEBUG,
     PIN_ERR_LEVEL_ERROR,
     PIN_ERR_LEVEL_NONE,
